@@ -15,6 +15,9 @@ local function setup_termclose_autocmd(state, buf, profile_name)
 			if profile_name and state.profile_jobs then
 				state.profile_jobs[profile_name] = nil
 			end
+			if profile_name and state.profile_buffers then
+				state.profile_buffers[profile_name] = nil
+			end
 			if state.current_profile == profile_name then
 				state.jobid = nil
 			end
@@ -23,6 +26,20 @@ local function setup_termclose_autocmd(state, buf, profile_name)
 				"truffle.nvim: terminal process exited for profile: " .. (profile_name or "unknown"),
 				vim.log.levels.INFO
 			)
+			vim.schedule(function()
+				for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+					pcall(vim.api.nvim_win_close, win, true)
+				end
+				if vim.api.nvim_buf_is_valid(buf) then
+					pcall(vim.api.nvim_buf_delete, buf, { force = true })
+				end
+				if state.bufnr == buf then
+					state.bufnr = nil
+				end
+				if state.winid and not vim.api.nvim_win_is_valid(state.winid) then
+					state.winid = nil
+				end
+			end)
 		end,
 	})
 end
