@@ -16,7 +16,8 @@ function Utils.set_window_width(win, width)
 end
 
 function Utils.ensure_command_available(cmd)
-	local first = vim.split(cmd, "%s+", { trimempty = true })[1]
+	-- Accept a bare/embedded command string or a pre-built argv list
+	local first = type(cmd) == "table" and cmd[1] or vim.split(cmd, "%s+", { trimempty = true })[1]
 	if not first or first == "" then
 		return false
 	end

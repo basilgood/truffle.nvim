@@ -27,6 +27,18 @@ local function setup_termclose_autocmd(state, buf, profile_name)
 	})
 end
 
+-- Build argv for a profile: command (whitespace-split for legacy compat) plus
+-- optional args list, passed through verbatim (no shell quoting involved).
+local function build_argv(cmd, args)
+	local argv = vim.split(cmd, "%s+", { trimempty = true })
+	if args then
+		for _, a in ipairs(args) do
+			table.insert(argv, a)
+		end
+	end
+	return argv
+end
+
 local function start_job_in_current_buf(state)
 	local job_opts = { term = true }
 	if state.config and state.config.cwd then
@@ -35,7 +47,7 @@ local function start_job_in_current_buf(state)
 	if state.config and state.config.env then
 		job_opts.env = state.config.env
 	end
-	local ok, job = pcall(vim.fn.jobstart, { state.config.command }, job_opts)
+	local ok, job = pcall(vim.fn.jobstart, build_argv(state.config.command, state.config.args), job_opts)
 	if not ok or not job or job <= 0 then
 		vim.notify("Failed to start '" .. state.config.command .. "'. Is it in your PATH?", vim.log.levels.ERROR)
 		return nil

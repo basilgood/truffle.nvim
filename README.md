@@ -119,6 +119,7 @@ Each profile is a table with the following options:
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
 | `command` | `string` | ✅ | CLI command to execute |
+| `args` | `table` | ❌ | Extra command-line args (list of strings), appended verbatim to `command` |
 | `cwd` | `string` | ❌ | Working directory for the command |
 | `env` | `table/string` | ❌ | Environment variables (table) or path to .env file |
 | `default` | `boolean` | ❌ | Mark as default profile when multiple profiles are configured (only one allowed) |

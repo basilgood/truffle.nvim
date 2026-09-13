@@ -28,6 +28,17 @@ local function validate_profile(profile)
 		return false, "profile must have a non-empty 'command' field"
 	end
 
+	if profile.args ~= nil then
+		if type(profile.args) ~= "table" then
+			return false, "profile 'args' must be a table (list of strings)"
+		end
+		for i, arg in ipairs(profile.args) do
+			if type(arg) ~= "string" then
+				return false, "profile 'args' item " .. i .. " must be a string"
+			end
+		end
+	end
+
 	if profile.cwd ~= nil and type(profile.cwd) ~= "string" then
 		return false, "profile 'cwd' must be a string"
 	end
@@ -187,6 +198,9 @@ local function get_profile_config(config, profile_name)
 	-- Create a copy of the config with profile settings applied
 	local profile_config = vim.deepcopy(config)
 	profile_config.command = profile.command
+	if profile.args then
+		profile_config.args = vim.deepcopy(profile.args)
+	end
 	if profile.cwd then
 		profile_config.cwd = profile.cwd
 	end
