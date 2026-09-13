@@ -264,19 +264,18 @@ end
 
 function Terminal.send_file(state, opts)
 	opts = opts or {}
-	local lines = nil
+	local path
 	if type(opts.path) == "string" and opts.path ~= "" and opts.path ~= "current" then
-		if vim.fn.filereadable(opts.path) ~= 1 then
-			vim.notify("truffle.nvim: file not readable: " .. opts.path, vim.log.levels.ERROR)
-			return
-		end
-		lines = vim.fn.readfile(opts.path)
+		path = opts.path
 	else
-		local bufnr = vim.api.nvim_get_current_buf()
-		lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+		-- Send the current buffer's path (relative to cwd), not its contents;
+		-- contents are sent via send_selection.
+		path = vim.fn.expand("%:p:.")
 	end
-	table.insert(lines, "")
-	send_to_terminal(state, lines)
+	if path == "" then
+		return
+	end
+	send_to_terminal(state, path .. "\n")
 end
 
 -- Hide current terminal window without killing the job
